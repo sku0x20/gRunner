@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"gRunner/src/pkg/runner"
+	"github.com/sku0x20/gRunner/src/pkg/runner"
 	"testing"
 )
 

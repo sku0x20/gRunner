@@ -1,7 +1,7 @@
 package runner
 
 import (
-	. "gRunner/src/pkg/api"
+	. "github.com/sku0x20/gRunner/src/pkg/api"
 	"reflect"
 	"runtime"
 	"strings"
