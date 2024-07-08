@@ -2,6 +2,7 @@ package runner
 
 import (
 	. "github.com/sku0x20/gRunner/src/pkg/api"
+	"github.com/sku0x20/gRunner/src/pkg/utils"
 	"testing"
 )
 
@@ -44,5 +45,5 @@ func (r *TestsRunner[E]) Teardown(f TeardownFunc[E]) {
 }
 
 func funcName(f any) string {
-	return FuncName(f)
+	return utils.FuncName(f)
 }
