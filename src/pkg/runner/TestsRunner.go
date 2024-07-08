@@ -2,9 +2,6 @@ package runner
 
 import (
 	. "github.com/sku0x20/gRunner/src/pkg/api"
-	"reflect"
-	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -47,6 +44,5 @@ func (r *TestsRunner[E]) Teardown(f TeardownFunc[E]) {
 }
 
 func funcName(f any) string {
-	absoluteName := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
-	return strings.Split(absoluteName, ".")[1]
+	return FuncName(f)
 }
