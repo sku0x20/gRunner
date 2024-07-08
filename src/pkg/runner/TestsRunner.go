@@ -1,6 +1,7 @@
 package runner
 
 import (
+	. "gRunner/src/pkg/api"
 	"reflect"
 	"runtime"
 	"strings"
@@ -15,10 +16,6 @@ func NewTestsRunner[E any](t *testing.T) *TestsRunner[E] {
 		teardown: func(t *testing.T, e E) {},
 	}
 }
-
-type TestFunc[E any] func(t *testing.T, extra E)
-type SetupFunc[E any] func(t *testing.T) E
-type TeardownFunc[E any] func(t *testing.T, extra E)
 
 type TestsRunner[E any] struct {
 	t        *testing.T
