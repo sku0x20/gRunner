@@ -67,8 +67,3 @@ func Test_Extra(tm *testing.T) {
 	r.Add(t1)
 	r.Run()
 }
-
-// teardownCalledEvenIfPanic
-// teardownCalledEvenIfFatal
-
-// support for one time setup and teardown
