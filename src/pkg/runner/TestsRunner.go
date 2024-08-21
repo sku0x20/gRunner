@@ -30,8 +30,8 @@ func (r *TestsRunner[E]) Run() {
 	for _, tf := range r.tests {
 		r.t.Run(funcName(tf), func(t *testing.T) {
 			extra := r.setup(t)
+			defer r.teardown(t, extra)
 			tf(t, extra)
-			r.teardown(t, extra)
 		})
 	}
 }
