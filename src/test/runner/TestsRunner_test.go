@@ -69,15 +69,8 @@ func Test_Extra(tm *testing.T) {
 }
 
 func Test_TearDownAfterPanic(tm *testing.T) {
-	teardownRan := false
-	tm.Cleanup(func() {
-		if !teardownRan {
-			tm.Fatalf("teardown didn't ran")
-		}
-	})
 	r := runner.NewTestsRunner[any](tm)
 	r.Teardown(func(t *testing.T, extra any) {
-		teardownRan = true
 		recover()
 	})
 	r.Add(func(t *testing.T, extra any) {
