@@ -67,3 +67,29 @@ func Test_Extra(tm *testing.T) {
 	r.Add(t1)
 	r.Run()
 }
+
+func Test_TearDownAfterPanic(tm *testing.T) {
+	r := runner.NewTestsRunner[any](tm)
+	r.Teardown(func(t *testing.T, extra any) {
+		recover()
+	})
+	r.Add(func(t *testing.T, extra any) {
+		panic("test-panic")
+	})
+	r.Run()
+}
+
+func Test_TearDownAfterFatal(tm *testing.T) {
+	tm.Skip() // has to be tested manually; check if teardown is called
+	r := runner.NewTestsRunner[any](tm)
+	r.Teardown(func(t *testing.T, extra any) {
+		t.Logf("teardown-called")
+	})
+	r.Add(func(t *testing.T, extra any) {
+		t.Fatalf("test-fatal")
+	})
+	r.Run()
+	if !tm.Failed() {
+		tm.Fatalf("should have failed!")
+	}
+}
