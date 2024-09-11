@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func Test_Nop(t *testing.T) {
+func Test_WithoutTest(t *testing.T) {
 	r := runner.NewTestsRunner[any](t)
 	r.Run()
 }
 
-func Test_NoFixtures(tm *testing.T) {
+func Test_WithoutFixtures(tm *testing.T) {
 	var t1t *testing.T = nil
 	t1 := func(t *testing.T, extra any) {
 		t1t = t
@@ -23,7 +23,7 @@ func Test_NoFixtures(tm *testing.T) {
 	}
 }
 
-func Test_Fixtures(tm *testing.T) {
+func Test_FixturesSameT(tm *testing.T) {
 	var setupT *testing.T = nil
 	var teardownT *testing.T = nil
 	var t1t *testing.T = nil
@@ -47,7 +47,7 @@ func Test_Fixtures(tm *testing.T) {
 	}
 }
 
-func Test_Extra(tm *testing.T) {
+func Test_SameExtra(tm *testing.T) {
 	setup := func(t *testing.T) string {
 		return "some value"
 	}
@@ -68,7 +68,7 @@ func Test_Extra(tm *testing.T) {
 	r.Run()
 }
 
-func Test_TearDownAfterPanic(tm *testing.T) {
+func Test_TeardownCalledAfterPanic(tm *testing.T) {
 	r := runner.NewTestsRunner[any](tm)
 	r.Teardown(func(t *testing.T, extra any) {
 		recover()
@@ -79,7 +79,7 @@ func Test_TearDownAfterPanic(tm *testing.T) {
 	r.Run()
 }
 
-func Test_TearDownAfterFatal(tm *testing.T) {
+func Test_TeardownCalledAfterFatal(tm *testing.T) {
 	tm.Skip() // has to be tested manually; check if teardown is called
 	r := runner.NewTestsRunner[any](tm)
 	r.Teardown(func(t *testing.T, extra any) {
