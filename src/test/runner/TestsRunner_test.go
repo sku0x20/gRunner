@@ -6,8 +6,12 @@ import (
 	"testing"
 )
 
+var NilFunc = func() any {
+	return nil
+}
+
 func Test_WithoutTest(t *testing.T) {
-	r := runner.NewTestsRunner[any](t)
+	r := runner.NewTestsRunner[any](t, NilFunc)
 	r.Run()
 }
 
@@ -16,7 +20,7 @@ func Test_WithoutFixtures(tm *testing.T) {
 	t1 := func(t *testing.T, extra any) {
 		t1t = t
 	}
-	r := runner.NewTestsRunner[any](tm)
+	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Add(t1)
 	r.Run()
 	if t1t == nil {
@@ -28,9 +32,8 @@ func Test_FixturesSameT(tm *testing.T) {
 	var setupT *testing.T = nil
 	var teardownT *testing.T = nil
 	var t1t *testing.T = nil
-	setup := func(t *testing.T) any {
+	setup := func(t *testing.T, extra any) {
 		setupT = t
-		return nil
 	}
 	teardown := func(t *testing.T, extra any) {
 		teardownT = t
@@ -38,7 +41,7 @@ func Test_FixturesSameT(tm *testing.T) {
 	t1 := func(t *testing.T, extra any) {
 		t1t = t
 	}
-	r := runner.NewTestsRunner[any](tm)
+	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Setup(setup)
 	r.Add(t1)
 	r.Teardown(teardown)
@@ -49,20 +52,23 @@ func Test_FixturesSameT(tm *testing.T) {
 }
 
 func Test_SameExtra(tm *testing.T) {
-	setup := func(t *testing.T) string {
-		return "some value"
+	setup := func(t *testing.T, extra *string) {
+		*extra = "some value"
 	}
-	t1 := func(t *testing.T, extra string) {
-		if extra != "some value" {
-			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", extra)
+	t1 := func(t *testing.T, extra *string) {
+		if *extra != "some value" {
+			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", *extra)
 		}
 	}
-	teardown := func(t *testing.T, extra string) {
-		if extra != "some value" {
-			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", extra)
+	teardown := func(t *testing.T, extra *string) {
+		if *extra != "some value" {
+			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", *extra)
 		}
 	}
-	r := runner.NewTestsRunner[string](tm)
+	r := runner.NewTestsRunner[*string](tm, func() *string {
+		s := "some value"
+		return &s
+	})
 	r.Setup(setup)
 	r.Teardown(teardown)
 	r.Add(t1)
@@ -70,7 +76,7 @@ func Test_SameExtra(tm *testing.T) {
 }
 
 func Test_TeardownCalledAfterPanic(tm *testing.T) {
-	r := runner.NewTestsRunner[any](tm)
+	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Teardown(func(t *testing.T, extra any) {
 		recover()
 	})
@@ -82,7 +88,7 @@ func Test_TeardownCalledAfterPanic(tm *testing.T) {
 
 func Test_TeardownCalledAfterFatal(tm *testing.T) {
 	tm.Skip() // has to be tested manually; check if teardown is called
-	r := runner.NewTestsRunner[any](tm)
+	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Teardown(func(t *testing.T, extra any) {
 		t.Logf("teardown-called")
 	})
@@ -96,15 +102,13 @@ func Test_TeardownCalledAfterFatal(tm *testing.T) {
 }
 
 func Test_MultipleSetups(t *testing.T) {
-	r := runner.NewTestsRunner[any](t)
+	r := runner.NewTestsRunner[any](t, NilFunc)
 	called := make([]string, 0, 2)
-	r.Setup(func(t *testing.T) any {
+	r.Setup(func(t *testing.T, extra any) {
 		called = append(called, "s1")
-		return nil
 	})
-	r.Setup(func(t *testing.T) any {
+	r.Setup(func(t *testing.T, extra any) {
 		called = append(called, "s2")
-		return nil
 	})
 	r.Add(func(t *testing.T, extra any) {
 		t.Log("test called")

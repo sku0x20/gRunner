@@ -6,20 +6,25 @@ import (
 	"testing"
 )
 
-func NewTestsRunner[E any](t *testing.T) *TestsRunner[E] {
+func NewTestsRunner[E any](
+	t *testing.T,
+	extraFunc ExtraFunc[E],
+) *TestsRunner[E] {
 	return &TestsRunner[E]{
-		t:        t,
-		tests:    make([]TestFunc[E], 0, 10),
-		setups:   make([]SetupFunc[E], 0, 10),
-		teardown: func(t *testing.T, e E) {},
+		t:         t,
+		tests:     make([]TestFunc[E], 0, 10),
+		setups:    make([]SetupFunc[E], 0, 10),
+		teardown:  func(t *testing.T, e E) {},
+		extraFunc: extraFunc,
 	}
 }
 
 type TestsRunner[E any] struct {
-	t        *testing.T
-	tests    []TestFunc[E]
-	setups   []SetupFunc[E]
-	teardown TeardownFunc[E]
+	t         *testing.T
+	tests     []TestFunc[E]
+	setups    []SetupFunc[E]
+	teardown  TeardownFunc[E]
+	extraFunc ExtraFunc[E]
 }
 
 func (r *TestsRunner[E]) Add(f TestFunc[E]) {
@@ -29,9 +34,9 @@ func (r *TestsRunner[E]) Add(f TestFunc[E]) {
 func (r *TestsRunner[E]) Run() {
 	for _, tf := range r.tests {
 		r.t.Run(funcName(tf), func(t *testing.T) {
-			var extra E
+			extra := r.extraFunc()
 			for _, setup := range r.setups {
-				extra = setup(t)
+				setup(t, extra)
 			}
 			defer r.teardown(t, extra)
 			tf(t, extra)
