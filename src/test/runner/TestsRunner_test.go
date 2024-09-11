@@ -2,6 +2,7 @@ package runner
 
 import (
 	"github.com/sku0x20/gRunner/src/pkg/runner"
+	"slices"
 	"testing"
 )
 
@@ -91,5 +92,28 @@ func Test_TeardownCalledAfterFatal(tm *testing.T) {
 	r.Run()
 	if !tm.Failed() {
 		tm.Fatalf("should have failed!")
+	}
+}
+
+func Test_MultipleSetups(t *testing.T) {
+	r := runner.NewTestsRunner[any](t)
+	called := make([]string, 0, 2)
+	r.Setup(func(t *testing.T) any {
+		called = append(called, "s1")
+		return nil
+	})
+	r.Setup(func(t *testing.T) any {
+		called = append(called, "s2")
+		return nil
+	})
+	r.Add(func(t *testing.T, extra any) {
+		t.Log("test called")
+	})
+	r.Run()
+	if len(called) != 2 {
+		t.Fatalf("wrong number of setups, expected 2, got %d", len(called))
+	}
+	if !slices.Equal(called, []string{"s1", "s2"}) {
+		t.Fatalf("wrong order")
 	}
 }
