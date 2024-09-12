@@ -8,7 +8,7 @@ import (
 
 func NewTestsRunner[E any](
 	t *testing.T,
-	extraFunc ExtraFunc[E],
+	extraFunc ExtraInit[E],
 ) *TestsRunner[E] {
 	return &TestsRunner[E]{
 		t:         t,
@@ -24,7 +24,7 @@ type TestsRunner[E any] struct {
 	tests     []TestFunc[E]
 	setups    []SetupFunc[E]
 	teardown  TeardownFunc[E]
-	extraFunc ExtraFunc[E]
+	extraFunc ExtraInit[E]
 }
 
 func (r *TestsRunner[E]) Add(f TestFunc[E]) {
