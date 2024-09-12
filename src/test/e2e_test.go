@@ -6,16 +6,18 @@ import (
 )
 
 func Test_TestRunner(t *testing.T) {
-	r := runner.NewTestsRunner[string](t)
+	r := runner.NewTestsRunner[string](t, func() string {
+		return "extra init"
+	})
 	r.Setup(setup)
 	r.Teardown(teardown)
 	r.Add(sampleTest)
 	r.Run()
 }
 
-func setup(t *testing.T) string {
+func setup(t *testing.T, extra string) {
 	// do setup
-	return "setup-data"
+	t.Logf("setup got extra '%s'", extra)
 }
 
 func teardown(t *testing.T, extra string) {
@@ -24,8 +26,8 @@ func teardown(t *testing.T, extra string) {
 }
 
 func sampleTest(t *testing.T, extra string) {
-	if extra != "setup-data" {
-		t.Fatalf("wrong value, expected \"setup-data\", got \"%s\"", extra)
+	if extra != "extra init" {
+		t.Fatalf("wrong value, expected \"extra init\", got \"%s\"", extra)
 	}
 	t.Logf("should print function name '%s' in test runner", "sampleTest")
 	t.Logf("sampleTest got extra '%s'", extra)
