@@ -6,20 +6,27 @@ import (
 	"testing"
 )
 
-func NewTestsRunner[E any](t *testing.T) *TestsRunner[E] {
+func NewTestsRunner[E any](
+	t *testing.T,
+	extraFunc ExtraInit[E],
+) *TestsRunner[E] {
 	return &TestsRunner[E]{
-		t:        t,
-		tests:    make([]TestFunc[E], 0, 10),
-		setup:    func(t *testing.T) E { return *new(E) },
-		teardown: func(t *testing.T, e E) {},
+		t:             t,
+		tests:         make([]TestFunc[E], 0, 10),
+		setups:        make([]SetupFunc[E], 0, 10),
+		teardowns:     make([]TeardownFunc[E], 0, 10),
+		teardownsLifo: make([]TeardownFunc[E], 0, 10),
+		extraFunc:     extraFunc,
 	}
 }
 
 type TestsRunner[E any] struct {
-	t        *testing.T
-	tests    []TestFunc[E]
-	setup    SetupFunc[E]
-	teardown TeardownFunc[E]
+	t             *testing.T
+	tests         []TestFunc[E]
+	setups        []SetupFunc[E]
+	teardowns     []TeardownFunc[E]
+	teardownsLifo []TeardownFunc[E]
+	extraFunc     ExtraInit[E]
 }
 
 func (r *TestsRunner[E]) Add(f TestFunc[E]) {
@@ -29,19 +36,40 @@ func (r *TestsRunner[E]) Add(f TestFunc[E]) {
 func (r *TestsRunner[E]) Run() {
 	for _, tf := range r.tests {
 		r.t.Run(funcName(tf), func(t *testing.T) {
-			extra := r.setup(t)
-			defer r.teardown(t, extra)
+			extra := r.extraFunc()
+			r.runSetups(t, extra)
+			defer r.runTeardowns(t, extra)
 			tf(t, extra)
 		})
 	}
 }
 
-func (r *TestsRunner[E]) Setup(f SetupFunc[E]) {
-	r.setup = f
+func (r *TestsRunner[E]) runSetups(t *testing.T, extra E) {
+	for _, setup := range r.setups {
+		setup(t, extra)
+	}
 }
 
+func (r *TestsRunner[E]) runTeardowns(t *testing.T, extra E) {
+	for _, teardown := range r.teardowns {
+		teardown(t, extra)
+	}
+	for i := len(r.teardownsLifo) - 1; i >= 0; i-- {
+		r.teardownsLifo[i](t, extra)
+	}
+}
+
+func (r *TestsRunner[E]) Setup(f SetupFunc[E]) {
+	r.setups = append(r.setups, f)
+}
+
+// recovery inside is not possible
 func (r *TestsRunner[E]) Teardown(f TeardownFunc[E]) {
-	r.teardown = f
+	r.teardowns = append(r.teardowns, f)
+}
+
+func (r *TestsRunner[E]) PushTeardown(f TeardownFunc[E]) {
+	r.teardownsLifo = append(r.teardownsLifo, f)
 }
 
 func funcName(f any) string {
