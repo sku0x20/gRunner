@@ -134,3 +134,24 @@ func Test_MultipleSetups(t *testing.T) {
 		t.Fatalf("wrong order")
 	}
 }
+
+func Test_MultipleTeardowns(t *testing.T) {
+	r := runner.NewTestsRunner[any](t, NilFunc)
+	called := make([]string, 0, 2)
+	r.Teardown(func(t *testing.T, extra any) {
+		called = append(called, "t1")
+	})
+	r.Add(func(t *testing.T, extra any) {
+		t.Log("test called")
+	})
+	r.Teardown(func(t *testing.T, extra any) {
+		called = append(called, "t2")
+	})
+	r.Run()
+	if len(called) != 2 {
+		t.Fatalf("wrong number of setups, expected 2, got %d", len(called))
+	}
+	if !slices.Equal(called, []string{"t1", "t2"}) {
+		t.Fatalf("wrong order")
+	}
+}
