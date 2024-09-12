@@ -78,7 +78,9 @@ func Test_SameExtra(tm *testing.T) {
 func Test_TeardownCalledAfterPanic(tm *testing.T) {
 	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Teardown(func(t *testing.T, extra any) {
-		recover()
+		t.Log("test")
+		err := recover()
+		t.Logf("%v", err)
 	})
 	r.Add(func(t *testing.T, extra any) {
 		panic("test-panic")
@@ -152,6 +154,30 @@ func Test_MultipleTeardowns(t *testing.T) {
 		t.Fatalf("wrong number of setups, expected 2, got %d", len(called))
 	}
 	if !slices.Equal(called, []string{"t1", "t2"}) {
+		t.Fatalf("wrong order")
+	}
+}
+
+func Test_TeardownInverse(t *testing.T) {
+	r := runner.NewTestsRunner[any](t, NilFunc)
+	called := make([]string, 0, 2)
+	r.TeardownInverse(func(t *testing.T, extra any) {
+		called = append(called, "t3")
+	})
+	r.TeardownInverse(func(t *testing.T, extra any) {
+		called = append(called, "t2")
+	})
+	r.Teardown(func(t *testing.T, extra any) {
+		called = append(called, "t1")
+	})
+	r.Add(func(t *testing.T, extra any) {
+		t.Log("test called")
+	})
+	r.Run()
+	if len(called) != 4 {
+		t.Fatalf("wrong number of setups, expected 4, got %d", len(called))
+	}
+	if !slices.Equal(called, []string{"t1", "t2", "t3"}) {
 		t.Fatalf("wrong order")
 	}
 }
