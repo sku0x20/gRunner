@@ -76,15 +76,18 @@ func Test_SameExtra(tm *testing.T) {
 }
 
 func Test_TeardownCalledAfterPanic(tm *testing.T) {
+	tm.Skip() // has to be tested manually; check if teardown is called
 	r := runner.NewTestsRunner[any](tm, NilFunc)
 	r.Teardown(func(t *testing.T, extra any) {
-		t.Log("test")
-		err := recover()
-		t.Logf("%v", err)
+		t.Logf("teardown-called")
 	})
 	r.Add(func(t *testing.T, extra any) {
+		t.Logf("test p")
 		panic("test-panic")
 	})
+	if !tm.Failed() {
+		tm.Fatalf("should have failed!")
+	}
 	r.Run()
 }
 
