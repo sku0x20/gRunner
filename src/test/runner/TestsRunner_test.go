@@ -101,6 +101,19 @@ func Test_TeardownCalledAfterFatal(tm *testing.T) {
 	}
 }
 
+func Test_ExtraInit(t *testing.T) {
+	r := runner.NewTestsRunner[*string](t, func() *string {
+		s := "some value"
+		return &s
+	})
+	r.Add(func(t *testing.T, extra *string) {
+		if *extra != "some value" {
+			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", *extra)
+		}
+	})
+	r.Run()
+}
+
 func Test_MultipleSetups(t *testing.T) {
 	r := runner.NewTestsRunner[any](t, NilFunc)
 	called := make([]string, 0, 2)
