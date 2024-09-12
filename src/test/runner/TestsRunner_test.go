@@ -177,7 +177,7 @@ func Test_TeardownInverse(t *testing.T) {
 		t.Log("test called")
 	})
 	r.Run()
-	if len(called) != 4 {
+	if len(called) != 3 {
 		t.Fatalf("wrong number of setups, expected 4, got %d", len(called))
 	}
 	if !slices.Equal(called, []string{"t1", "t2", "t3"}) {

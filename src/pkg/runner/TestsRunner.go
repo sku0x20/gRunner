@@ -54,15 +54,16 @@ func (r *TestsRunner[E]) runTeardowns(t *testing.T, extra E) {
 	for _, teardown := range r.teardowns {
 		teardown(t, extra)
 	}
-	//for _, teardownInverse := range r.teardownsInverse {
-	//	teardownInverse(t, extra)
-	//}
+	for i := len(r.teardownsInverse) - 1; i >= 0; i-- {
+		r.teardownsInverse[i](t, extra)
+	}
 }
 
 func (r *TestsRunner[E]) Setup(f SetupFunc[E]) {
 	r.setups = append(r.setups, f)
 }
 
+// recovery inside is not possible
 func (r *TestsRunner[E]) Teardown(f TeardownFunc[E]) {
 	r.teardowns = append(r.teardowns, f)
 }
