@@ -161,13 +161,13 @@ func Test_MultipleTeardowns(t *testing.T) {
 	}
 }
 
-func Test_TeardownInverse(t *testing.T) {
+func Test_PushTeardown(t *testing.T) {
 	r := runner.NewTestsRunner[any](t, NilFunc)
 	called := make([]string, 0, 2)
-	r.TeardownInverse(func(t *testing.T, extra any) {
+	r.PushTeardown(func(t *testing.T, extra any) {
 		called = append(called, "t3")
 	})
-	r.TeardownInverse(func(t *testing.T, extra any) {
+	r.PushTeardown(func(t *testing.T, extra any) {
 		called = append(called, "t2")
 	})
 	r.Teardown(func(t *testing.T, extra any) {
