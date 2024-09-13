@@ -5,10 +5,9 @@ import (
 )
 
 func EmptyInit[E any]() E {
-	var e E
-	typeOf := reflect.TypeOf(e)
-	if typeOf.Kind() == reflect.Ptr {
-		rType := typeOf.Elem()
+	t := reflect.TypeFor[E]()
+	if t.Kind() == reflect.Ptr {
+		rType := t.Elem()
 		z := reflect.New(rType).Interface()
 		return z.(E)
 	}
