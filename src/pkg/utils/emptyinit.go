@@ -11,6 +11,9 @@ func EmptyInit[E any]() E {
 		rType := t.Elem()
 		z := reflect.New(rType).Interface()
 		return z.(E)
+	case reflect.Slice:
+		z := reflect.MakeSlice(t, 0, 10).Interface()
+		return z.(E)
 	default:
 		return *new(E)
 	}

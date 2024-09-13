@@ -18,3 +18,11 @@ func Test_PointerInt(t *testing.T) {
 		t.Fatalf("e == nil")
 	}
 }
+
+func Test_SliceInt(t *testing.T) {
+	e := utils.EmptyInit[[]int]()
+	e = append(e, 12)
+	if e[0] != 12 {
+		t.Fatalf("e == nil")
+	}
+}
