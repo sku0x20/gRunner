@@ -1,0 +1,14 @@
+
+func Test_ExtraInterface(tm *testing.T) {
+	r := runner.NewTestsRunner[any](tm, EmptyInit)
+	r.Setup(func(t *testing.T, extra any) {
+		s := 12
+		extra = &s
+		t.Logf("extra: %v", extra)
+	})
+	r.Add(func(t *testing.T, extra any) {
+	    // extra is nil here; passed by copying value
+		t.Logf("test called with %v", extra)
+	})
+	r.Run()
+}

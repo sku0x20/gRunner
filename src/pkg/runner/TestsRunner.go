@@ -6,6 +6,10 @@ import (
 	"testing"
 )
 
+func NewTestsRunnerEmptyInit[E any](t *testing.T) *TestsRunner[E] {
+	return NewTestsRunner(t, utils.EmptyInit[E])
+}
+
 func NewTestsRunner[E any](
 	t *testing.T,
 	extraFunc ExtraInit[E],
