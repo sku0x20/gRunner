@@ -5,7 +5,7 @@ import (
 )
 
 func EmptyInit[E any]() E {
-	e := *new(E)
+	var e E
 	typeOf := reflect.TypeOf(e)
 	if typeOf.Kind() == reflect.Ptr {
 		rType := typeOf.Elem()
