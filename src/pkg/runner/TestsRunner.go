@@ -6,6 +6,17 @@ import (
 	"testing"
 )
 
+func NewTestsRunnerEmptyInit[E any](t *testing.T) *TestsRunner[E] {
+	return &TestsRunner[E]{
+		t:             t,
+		tests:         make([]TestFunc[E], 0, 10),
+		setups:        make([]SetupFunc[E], 0, 10),
+		teardowns:     make([]TeardownFunc[E], 0, 10),
+		teardownsLifo: make([]TeardownFunc[E], 0, 10),
+		extraFunc:     utils.EmptyInit[E],
+	}
+}
+
 func NewTestsRunner[E any](
 	t *testing.T,
 	extraFunc ExtraInit[E],

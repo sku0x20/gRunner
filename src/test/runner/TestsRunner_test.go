@@ -6,12 +6,8 @@ import (
 	"testing"
 )
 
-var NilFunc = func() any {
-	return nil
-}
-
 func Test_WithoutTest(t *testing.T) {
-	r := runner.NewTestsRunner[any](t, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](t)
 	r.Run()
 }
 
@@ -20,7 +16,7 @@ func Test_WithoutFixtures(tm *testing.T) {
 	t1 := func(t *testing.T, extra any) {
 		t1t = t
 	}
-	r := runner.NewTestsRunner[any](tm, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](tm)
 	r.Add(t1)
 	r.Run()
 	if t1t == nil {
@@ -41,7 +37,7 @@ func Test_FixturesSameT(tm *testing.T) {
 	t1 := func(t *testing.T, extra any) {
 		t1t = t
 	}
-	r := runner.NewTestsRunner[any](tm, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](tm)
 	r.Setup(setup)
 	r.Add(t1)
 	r.Teardown(teardown)
@@ -77,7 +73,7 @@ func Test_SameExtra(tm *testing.T) {
 
 func Test_TeardownCalledAfterPanic(tm *testing.T) {
 	tm.Skip() // has to be tested manually; check if teardown is called
-	r := runner.NewTestsRunner[any](tm, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](tm)
 	r.Teardown(func(t *testing.T, extra any) {
 		t.Logf("teardown-called")
 	})
@@ -93,7 +89,7 @@ func Test_TeardownCalledAfterPanic(tm *testing.T) {
 
 func Test_TeardownCalledAfterFatal(tm *testing.T) {
 	tm.Skip() // has to be tested manually; check if teardown is called
-	r := runner.NewTestsRunner[any](tm, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](tm)
 	r.Teardown(func(t *testing.T, extra any) {
 		t.Logf("teardown-called")
 	})
@@ -120,7 +116,7 @@ func Test_ExtraInit(t *testing.T) {
 }
 
 func Test_MultipleSetups(t *testing.T) {
-	r := runner.NewTestsRunner[any](t, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](t)
 	called := make([]string, 0, 2)
 	r.Setup(func(t *testing.T, extra any) {
 		called = append(called, "s1")
@@ -141,7 +137,7 @@ func Test_MultipleSetups(t *testing.T) {
 }
 
 func Test_MultipleTeardowns(t *testing.T) {
-	r := runner.NewTestsRunner[any](t, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](t)
 	called := make([]string, 0, 2)
 	r.Teardown(func(t *testing.T, extra any) {
 		called = append(called, "t1")
@@ -162,7 +158,7 @@ func Test_MultipleTeardowns(t *testing.T) {
 }
 
 func Test_PushTeardown(t *testing.T) {
-	r := runner.NewTestsRunner[any](t, NilFunc)
+	r := runner.NewTestsRunnerEmptyInit[any](t)
 	called := make([]string, 0, 2)
 	r.PushTeardown(func(t *testing.T, extra any) {
 		called = append(called, "t3")
