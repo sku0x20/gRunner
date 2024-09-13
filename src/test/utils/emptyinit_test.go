@@ -27,3 +27,11 @@ func Test_Slice(t *testing.T) {
 		t.Fatalf("e[0] != 12")
 	}
 }
+
+func Test_Map(t *testing.T) {
+	e := utils.EmptyInit[map[int]int]()
+	e[23] = 32
+	if e[23] != 32 {
+		t.Fatalf("e[23] != 32")
+	}
+}
