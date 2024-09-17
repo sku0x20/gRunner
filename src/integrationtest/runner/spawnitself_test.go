@@ -12,9 +12,6 @@ func Test_Process(t *testing.T) {
 	} else {
 		output := spawnAndRun(funcName())
 		lines := splitAndTrimLines(output)
-		//for i, line := range output {
-		//	t.Logf("%d %s", i, line)
-		//}
 		if !strings.Contains(lines[1], "fatal") {
 			t.Fatalf("should print fatal")
 		}
