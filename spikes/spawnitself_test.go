@@ -14,26 +14,32 @@ func Test_Process(t *testing.T) {
 		realTest(t)
 		return
 	}
-	ab, _, _, _ := runtime.Caller(0)
-	split := strings.Split(runtime.FuncForPC(ab).Name(), ".")
-	thisFuncName := split[len(split)-1]
-	cmd := exec.Command(os.Args[0], "-test.run", "^"+thisFuncName+"$")
-	cmd.Env = append(os.Environ(), "REAL=1")
-	// replace with cmd.output / combined output
-	buffer := &strings.Builder{}
-	cmd.Stdout = buffer
-	cmd.Stderr = buffer
-	_ = cmd.Run()
-	lines := getLines(buffer.String())
+	thisFunc := callerFuncName()
+	lines := runTest(thisFunc)
 	//for i, line := range lines {
 	//	t.Logf("%d %s", i, line)
 	//}
-	if !strings.Contains(lines[1], "") {
+	if !strings.Contains(lines[1], "fatal") {
 		t.Fatalf("should print fatal")
 	}
 	if !strings.Contains(lines[2], "defer") {
 		t.Fatalf("should print d")
 	}
+}
+
+func runTest(thisFunc string) []string {
+	cmd := exec.Command(os.Args[0], "-test.run", "^"+thisFunc+"$")
+	cmd.Env = append(os.Environ(), "REAL=1")
+	output, _ := cmd.CombinedOutput()
+	lines := getLines(string(output))
+	return lines
+}
+
+func callerFuncName() string {
+	caller, _, _, _ := runtime.Caller(1)
+	fullName := runtime.FuncForPC(caller).Name()
+	split := strings.Split(fullName, ".")
+	return split[len(split)-1]
 }
 
 func getLines(s string) []string {
