@@ -10,46 +10,22 @@ import (
 
 // spawning itself
 func Test_Process(t *testing.T) {
-	if os.Getenv("REAL") == "1" {
+	if runReal() {
 		realTest(t)
 		return
+	} else {
+		output := spawnAndRun(funcName())
+		lines := splitAndTrimLines(output)
+		//for i, line := range output {
+		//	t.Logf("%d %s", i, line)
+		//}
+		if !strings.Contains(lines[1], "fatal") {
+			t.Fatalf("should print fatal")
+		}
+		if !strings.Contains(lines[2], "defer") {
+			t.Fatalf("should print d")
+		}
 	}
-	thisFunc := callerFuncName()
-	lines := runTest(thisFunc)
-	//for i, line := range lines {
-	//	t.Logf("%d %s", i, line)
-	//}
-	if !strings.Contains(lines[1], "fatal") {
-		t.Fatalf("should print fatal")
-	}
-	if !strings.Contains(lines[2], "defer") {
-		t.Fatalf("should print d")
-	}
-}
-
-func runTest(thisFunc string) []string {
-	cmd := exec.Command(os.Args[0], "-test.run", "^"+thisFunc+"$")
-	cmd.Env = append(os.Environ(), "REAL=1")
-	output, _ := cmd.CombinedOutput()
-	lines := getLines(string(output))
-	return lines
-}
-
-func callerFuncName() string {
-	caller, _, _, _ := runtime.Caller(1)
-	fullName := runtime.FuncForPC(caller).Name()
-	split := strings.Split(fullName, ".")
-	return split[len(split)-1]
-}
-
-func getLines(s string) []string {
-	split := strings.Split(s, "\n")
-	lines := make([]string, 0, len(split))
-	for _, line := range split {
-		trimmed := strings.TrimSpace(line)
-		lines = append(lines, trimmed)
-	}
-	return lines
 }
 
 func realTest(t *testing.T) {
@@ -57,6 +33,34 @@ func realTest(t *testing.T) {
 		t.Logf("defer")
 	}()
 	t.Fatalf("fatal")
+}
+
+func runReal() bool {
+	return os.Getenv("REAL") == "1"
+}
+
+func spawnAndRun(testFunc string) string {
+	cmd := exec.Command(os.Args[0], "-test.run", "^"+testFunc+"$")
+	cmd.Env = append(os.Environ(), "REAL=1")
+	output, _ := cmd.CombinedOutput()
+	return string(output)
+}
+
+func funcName() string {
+	caller, _, _, _ := runtime.Caller(1)
+	fullName := runtime.FuncForPC(caller).Name()
+	split := strings.Split(fullName, ".")
+	return split[len(split)-1]
+}
+
+func splitAndTrimLines(s string) []string {
+	split := strings.Split(s, "\n")
+	lines := make([]string, 0, len(split))
+	for _, line := range split {
+		trimmed := strings.TrimSpace(line)
+		lines = append(lines, trimmed)
+	}
+	return lines
 }
 
 /*
