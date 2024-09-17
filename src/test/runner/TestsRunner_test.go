@@ -71,37 +71,6 @@ func Test_SameExtra(tm *testing.T) {
 	r.Run()
 }
 
-func Test_TeardownCalledAfterPanic(tm *testing.T) {
-	tm.Skip() // has to be tested manually; check if teardown is called
-	r := runner.NewTestsRunnerEmptyInit[any](tm)
-	r.Teardown(func(t *testing.T, extra any) {
-		t.Logf("teardown-called")
-	})
-	r.Add(func(t *testing.T, extra any) {
-		t.Logf("test p")
-		panic("test-panic")
-	})
-	if !tm.Failed() {
-		tm.Fatalf("should have failed!")
-	}
-	r.Run()
-}
-
-func Test_TeardownCalledAfterFatal(tm *testing.T) {
-	tm.Skip() // has to be tested manually; check if teardown is called
-	r := runner.NewTestsRunnerEmptyInit[any](tm)
-	r.Teardown(func(t *testing.T, extra any) {
-		t.Logf("teardown-called")
-	})
-	r.Add(func(t *testing.T, extra any) {
-		t.Fatalf("test-fatal")
-	})
-	r.Run()
-	if !tm.Failed() {
-		tm.Fatalf("should have failed!")
-	}
-}
-
 func Test_ExtraInit(t *testing.T) {
 	r := runner.NewTestsRunner[*string](t, func() *string {
 		s := "some value"
