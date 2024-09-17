@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_Process(t *testing.T) {
+func Test_SpawnItself(t *testing.T) {
 	if runReal() {
 		realTest(t)
 		return
