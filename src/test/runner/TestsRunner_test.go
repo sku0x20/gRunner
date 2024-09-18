@@ -24,25 +24,29 @@ func Test_WithoutFixtures(tm *testing.T) {
 	}
 }
 
-func Test_FixturesSameT(tm *testing.T) {
+func Test_SameT(tm *testing.T) {
+	var initT *testing.T = nil
 	var setupT *testing.T = nil
 	var teardownT *testing.T = nil
-	var t1t *testing.T = nil
+	var testT *testing.T = nil
 	setup := func(t *testing.T, extra any) {
 		setupT = t
 	}
 	teardown := func(t *testing.T, extra any) {
 		teardownT = t
 	}
-	t1 := func(t *testing.T, extra any) {
-		t1t = t
+	test := func(t *testing.T, extra any) {
+		testT = t
 	}
-	r := runner.NewTestsRunnerEmptyInit[any](tm)
+	r := runner.NewTestsRunner[any](tm, func(t *testing.T) any {
+		initT = t
+		return nil
+	})
 	r.Setup(setup)
-	r.Add(t1)
+	r.Add(test)
 	r.Teardown(teardown)
 	r.Run()
-	if setupT != t1t || teardownT != t1t {
+	if initT != testT || setupT != testT || teardownT != testT {
 		tm.Fatalf("t different for fixtures")
 	}
 }
@@ -61,7 +65,7 @@ func Test_SameExtra(tm *testing.T) {
 			t.Fatalf("wrong value, expected \"some value\", got \"%s\"", *extra)
 		}
 	}
-	r := runner.NewTestsRunner[*string](tm, func() *string {
+	r := runner.NewTestsRunner[*string](tm, func(t *testing.T) *string {
 		s := "some value"
 		return &s
 	})
@@ -72,7 +76,7 @@ func Test_SameExtra(tm *testing.T) {
 }
 
 func Test_ExtraInit(t *testing.T) {
-	r := runner.NewTestsRunner[*string](t, func() *string {
+	r := runner.NewTestsRunner[*string](t, func(t *testing.T) *string {
 		s := "some value"
 		return &s
 	})
@@ -143,7 +147,7 @@ func Test_PushTeardown(t *testing.T) {
 	})
 	r.Run()
 	if len(called) != 3 {
-		t.Fatalf("wrong number of setups, expected 4, got %d", len(called))
+		t.Fatalf("wrong number of setups, expected 3, got %d", len(called))
 	}
 	if !slices.Equal(called, []string{"t1", "t2", "t3"}) {
 		t.Fatalf("wrong order")

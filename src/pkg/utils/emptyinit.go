@@ -2,9 +2,10 @@ package utils
 
 import (
 	"reflect"
+	"testing"
 )
 
-func EmptyInit[E any]() E {
+func EmptyInit[E any](_ *testing.T) E {
 	t := reflect.TypeFor[E]()
 	switch t.Kind() {
 	case reflect.Ptr:
