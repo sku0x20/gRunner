@@ -40,7 +40,7 @@ func (r *TestsRunner[E]) Add(f TestFunc[E]) {
 func (r *TestsRunner[E]) Run() {
 	for _, tf := range r.tests {
 		r.t.Run(funcName(tf), func(t *testing.T) {
-			extra := r.extraFunc()
+			extra := r.extraFunc(t)
 			r.runSetups(t, extra)
 			defer r.runTeardowns(t, extra)
 			tf(t, extra)

@@ -6,7 +6,7 @@ import (
 )
 
 func Test_TestRunner(t *testing.T) {
-	r := runner.NewTestsRunner[string](t, func() string {
+	r := runner.NewTestsRunner[string](t, func(_ *testing.T) string {
 		return "extra init"
 	})
 	r.Setup(setup)
